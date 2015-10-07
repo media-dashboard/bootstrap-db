@@ -1,5 +1,5 @@
 var fs = require('fs');
-var rp = require('request-promise');
+var requestPromise = require('request-promise');
 var unzip = require('unzip');
 var pg = require('pg');
 var moment = require('moment');
@@ -9,18 +9,18 @@ var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
   ext: '.export.CSV.zip',
   dateRange: {
-    start: moment("2013 4 5", "YYYY MM DD"), // min: moment("2013 4 1", "YYYY MM DD")
+    start: moment("2015 10 2", "YYYY MM DD"), // min: moment("2013 4 1", "YYYY MM DD") -- inclusive
     end: moment() // max: moment() -- inclusive
   },
   dataDir: 'data/'
 };
 
-pg.connection({})
+// pg.connection({})
 
-var dateGenerator = function(){
+var dateGenerator = function(settings){
   // clone start date and end date
-  var date = moment(settings.dateRange.start),
-      endDate = moment(settings.dateRange.end),
+  var date = settings.dateRange.start,
+      endDate = settings.dateRange.end,
       dateCount = date.diff(endDate, 'days'),
       dateIdx = 1;
 
@@ -38,50 +38,58 @@ var dateGenerator = function(){
   };
 };
 
-
-var grab = function(date){
-  // download file
-  var url = settings.baseurl + date + settings.ext;
-  console.log('Downloading', url);
-
-  return rp(url);
-    // .then(() => {
-    // }).catch(() => {});
-};
-
-var unzip2File = function(zipStreamPromise){
+var unzip2File = function(zipStream){
   // unzip file in memory, and write to csv file
   console.log('Unzipping');
 
-  zipStreamPromise.then( (zipStream) => {
-      // buffer file, unzip while in memory, and save to file
-      zipStream.pipe(unzip.Extract({ path: settings.dataDir }))
-      zipStream.on('end', () => { return date });
+  var unzipPromise = new Promise();
+
+  zipStream.pipe(unzip.Extract({ path: settings.dataDir }))
+  zipStream.on('end', () => {
+    unzipPromise.resolve(date);
+  });
+  zipStream.on('error', (err) => {
+    console.log('Error unzipping file for date', date, err.message);
+    unzipPromise.error(err);
+  });
+
+  return unzipPromise;
+};
+
+var upload2Pg = function(date){
+  var pgPromise = new Promise();
+
+  // pg.uploadSomehow(date)
+  console.log('uploaded', date);
+  pgPromise.resolve(date);
+};
+
+var download = function(date, settings){
+  if(!date){ return; }
+
+  console.log('downloading', settings.baseurl + date + settings.ext);
+
+  requestPromise(settings.baseurl + date + settings.ext)
+    .then(unzip2File)
+    .then(upload2Pg)
+    .catch((err) => {
+      console.log(err);
     })
-    .catch( (err) => {
-      console.log('Error unzipping file for date', date, err.message);
-      return err;
-    });
-
-  return req;
-};
-
-var upload2Pg = function(datePromise){
-  datePromise
-    .then((date) => {
-      console.log('uploaded', date);
-    }).catch((err) => {
-      console.log('error uploading date', date, err.message);
+    .finally(() => {
+      download(getDate.date);
     });
 };
 
+// initialize date generator
+var getDate = dateGenerator(settings);
 
-var getDate = dateGenerator(),
+// recursively download
+download(getDate().date, settings);
+
+
+var getDate = dateGenerator(settings),
     date = getDate().date;
 
-grab(date)
-  .unzip2File()
-  .upload
 
 
 // while(date){
