@@ -47,6 +47,10 @@ var download = function(date){
       .pipe(unzip.Extract({ path: settings.dataDir }))
       .on('finish', () => {
         console.log('finish unzipping', date, '\n');
+        // initiate async upload to pg
+        // pg.upload(...)
+
+        // while uploading to pg, initiate the next download
         download(getDate().date);
       });
   }).on('error', (err) => {
