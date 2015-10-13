@@ -53,6 +53,24 @@ var download = function(date){
         // while uploading to pg, initiate the next download
         download(getDate().date);
       });
+
+    // upload to postgres w/o writing to disk
+        // see Unzip: https://www.npmjs.com/package/unzip
+        // see pg-copy-stream: https://github.com/brianc/node-pg-copy-streams/
+    // var pgStream = client.query(copyFrom('COPY my_table FROM STDIN'));
+
+    // res
+    //   .pipe(unzip.Parse())
+    //   .pipe(pgStream)
+    //   .on('finish', () => {
+    //      done()
+    //      download(getDate().date);
+    //    })
+    //   .on('error', () => {
+    //     done()
+    //     download(getDate().date);
+    //   });
+
   }).on('error', (err) => {
     console.log('Error downloading file for date', date, e.message);
     download(getDate().date);
