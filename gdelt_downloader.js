@@ -12,7 +12,9 @@ var settings = {
     start: moment("2013 3 31", "YYYY MM DD"), // min: moment("2013 4 1", "YYYY MM DD") -- inclusive
     end: moment("2013 4 3", "YYYY MM DD") // max: moment() -- inclusive
   },
-  dataDir: 'data/'
+  dataDir: 'data/',
+  user: 'jamesconkling',
+  db: 'gdelt',
 };
 
 
@@ -38,23 +40,23 @@ var DateGenerator = function(settings){
   };
 };
 
-var download = function(date){
+var download = function(date, pgClient){
   if(!date){
     console.log('Finished downloading all files for date range:', settings.dateRange.start.format('YYYYMMDD'), 'to', settings.dateRange.end.format('YYYYMMDD'));
-    return;
+    return pgClient.end();
   }
 
   var url = settings.baseurl + date + settings.ext;
   console.log('\nDownloading from', url);
 
-  req = http.get(url, (res) => {
+  http.get(url, (res) => {
     // upload to postgres w/o writing to disk
         // see Unzip: https://www.npmjs.com/package/unzip
         // see pg-copy-stream: https://github.com/brianc/node-pg-copy-streams/
     // var pgStream = client.query(copyFrom('COPY my_table FROM STDIN'));
     if(res.statusCode !== 200){
       console.error('Error downloading file for date', date, res.statusCode, res.statusMessage);
-      return download(getDate().date);
+      return download(getDate().date, pgClient);
     }
 
     res
@@ -62,29 +64,24 @@ var download = function(date){
       .on('entry', (entry) => entry.pipe(fs.createWriteStream(settings.dataDir + date + '.csv')) )
       .on('finish', () => {
         console.log('Finished downloading file', date);
-        download(getDate().date);
+        download(getDate().date, pgClient);
       })
       .on('error', (err) => {
         console.error('Response Error for date', date, '\n', err);
-        download(getDate().date);
+        download(getDate().date, pgClient);
       });
-
-      // .pipe(pgStream)
-      // .on('finish', () => {
-      //    done()
-      //    download(getDate().date);
-      //  })
-      // .on('error', () => {
-      //   done()
-      //   download(getDate().date);
-      // });
 
   }).on('error', (err) => {
     console.error('Request Error downloading file for date', date, e.message);
-    download(getDate().date);
+    download(getDate().date, pgClient);
   });
 };
 
+var pgClient = new pg.Client('postgres://' + settings.user + '@localhost/' + settings.db);
 var getDate = DateGenerator(settings);
-var date = getDate().date;
-download(date);
+
+pgClient.connect((err) => {
+  if(err){ return console.error('Error opening connection to postgres', err); }
+
+  download(getDate().date, pgClient);
+});
