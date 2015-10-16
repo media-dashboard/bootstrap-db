@@ -1,7 +1,7 @@
 var pg = require('pg');
 var moment = require('moment');
-var download = require('./gdelt_downloader');
-var DateGenerator = require('./util').DateGenerator;
+var downloader = require('./lib/downloader');
+var DateGenerator = require('./lib/util').DateGenerator;
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
@@ -21,9 +21,9 @@ var getDate = DateGenerator(settings);
 pgClient.connect((err) => {
   if(err){ return console.error('Error opening connection to postgres', err); }
 
-  // download(date, fileDownloaded, allFilesDownloaded, settings)
-  var fileDownloaded = function(){
-    console.log('done');
+  // downloader(date, fileDownloaded, allFilesDownloaded, settings)
+  var fileDownloaded = function(date){
+    console.log('Finished downloading file', date);
   };
 
   var allFilesDownloaded = function(){
@@ -31,5 +31,5 @@ pgClient.connect((err) => {
     pgClient.end()
   };
 
-  download(getDate, fileDownloaded, allFilesDownloaded, settings);
+  downloader(getDate, fileDownloaded, allFilesDownloaded, settings);
 });
