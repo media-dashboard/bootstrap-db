@@ -1,3 +1,4 @@
+var fs = require('fs');
 var pg = require('pg');
 var moment = require('moment');
 var downloader = require('./lib/downloader');
@@ -21,15 +22,18 @@ var getDate = DateGenerator(settings);
 pgClient.connect((err) => {
   if(err){ return console.error('Error opening connection to postgres', err); }
 
-  // downloader(date, fileDownloaded, allFilesDownloaded, settings)
-  var fileDownloaded = function(date){
+  var fileStreamCB = function(date){
     console.log('Finished downloading file', date);
+    return fs.createWriteStream(settings.dataDir + date + '.csv');
   };
 
-  var allFilesDownloaded = function(){
-    console.log('Finished downloading all files for date range:', settings.dateRange.start.format('YYYYMMDD'), 'to', settings.dateRange.end.format('YYYYMMDD'));
-    pgClient.end()
+  var allFilesDownloadedCB = function(){
+    var startDate = settings.dateRange.start.format('YYYYMMDD');
+    var endDate = settings.dateRange.end.format('YYYYMMDD');
+
+    console.log('Finished downloading all files for date range:', startDate, 'to', endDate);
+    return pgClient.end();
   };
 
-  downloader(getDate, fileDownloaded, allFilesDownloaded, settings);
+  downloader(getDate, fileStreamCB, allFilesDownloadedCB, settings);
 });
