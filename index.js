@@ -1,7 +1,7 @@
 var fs = require('fs');
 var pg = require('pg');
 var downloader = require('./lib/downloader');
-var DateGenerator = require('./lib/util').DateGenerator;
+var moment = require('moment');
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
@@ -16,23 +16,21 @@ var settings = {
 };
 
 var pgClient = new pg.Client('postgres://' + settings.user + '@localhost/' + settings.db);
-var getDate = DateGenerator(settings.dateRange.start, settings.dateRange.end);
 
 pgClient.connect((err) => {
   if(err){ return console.error('Error opening connection to postgres', err); }
+  var startDate = moment(settings.dateRange.start, "YYYY MM DD");
+  var endDate = moment(settings.dateRange.end, "YYYY MM DD");
 
   var fileStreamCB = function(date){
-    console.log('Finished downloading file', date);
-    return fs.createWriteStream(settings.dataDir + date + '.csv');
+    console.log('Finished downloading file', date.format('YYYYMMDD'));
+    return fs.createWriteStream(settings.dataDir + date.format('YYYYMMDD') + '.csv');
   };
 
   var allFilesDownloadedCB = function(){
-    var startDate = settings.dateRange.start;
-    var endDate = settings.dateRange.end;
-
-    console.log('Finished downloading all files for date range:', startDate, 'to', endDate);
+    console.log('Finished downloading all files for date range:', startDate.format('YYYYMMDD'), 'to', endDate.format('YYYYMMDD'));
     return pgClient.end();
   };
 
-  downloader(getDate, fileStreamCB, allFilesDownloadedCB, settings);
+  downloader(startDate, endDate, fileStreamCB, allFilesDownloadedCB, settings);
 });
