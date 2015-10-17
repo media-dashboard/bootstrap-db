@@ -22,15 +22,15 @@ pgClient.connect((err) => {
   var startDate = moment(settings.dateRange.start, "YYYY MM DD");
   var endDate = moment(settings.dateRange.end, "YYYY MM DD");
 
-  var fileStreamCB = function(date){
+  var fileStream = function(readStream, date){
     console.log('Finished downloading file', date.format('YYYYMMDD'));
-    return fs.createWriteStream(settings.dataDir + date.format('YYYYMMDD') + '.csv');
+    readStream.pipe( fs.createWriteStream(settings.dataDir + date.format('YYYYMMDD') + '.csv') );
   };
 
-  var allFilesDownloadedCB = function(){
+  var done = function(){
     console.log('Finished downloading all files for date range:', startDate.format('YYYYMMDD'), 'to', endDate.format('YYYYMMDD'));
     return pgClient.end();
   };
 
-  downloader(startDate, endDate, fileStreamCB, allFilesDownloadedCB, settings);
+  downloader(startDate, endDate, fileStream, done, settings);
 });
