@@ -19,23 +19,33 @@ var settings = {
     given the function signature (stream, date, next)
   doneHandler: callback invoked after file for date settings.endDate has been fully downloaded and handled via it's callback handler
 */
-downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
+var pgClient = new pg.Client('postgres://' + settings.user + '@localhost/' + settings.db);
 
-function fileStreamHandler(fileStream, date, next){
-  var writeStream = fs.createWriteStream(settings.dataDir + date + '.csv');
+pgClient.connect((err) => {
+  if(err){ return console.error('Error opening connection to postgres', err); }
 
-  fileStream.pipe(writeStream)
-    .on('error', () => {
-      console.log('ERROR piping to data dir to', settings.dataDir + date);
-      next();
-    })
-    .on('finish', () => {
-      console.log('Finished writing', date);
-      next();
-    });
-}
+  downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
 
-function doneHandler(){
-  console.log('done');
-}
+  function fileStreamHandler(fileStream, date, next){
+    console.log('Finished downloading file', date);
 
+    var pgStream = pgClient.query(copyFrom('COPY events FROM STDIN WITH CSV DELIMITER \t'));
+
+    fileStream.pipe(pgStream)
+      .on('error', (err) => {
+        console.log('error uploading file', date, 'error', err);
+        next();
+      })
+      .on('finish', () => {
+        console.log('finish uploading file', date);
+        next();
+      });
+
+  }
+
+  function doneHandler(){
+    console.log('done uploading all files');
+    pgClient.end();
+  }
+
+});
