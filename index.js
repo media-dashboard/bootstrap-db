@@ -13,6 +13,14 @@ var settings = {
   db: 'gdelt',
 };
 
+/* downloader function signature
+  date: date from which to start downloading files
+  fileStreamHandler: callback invoked after each file has been downloaded and unzipped
+    given the function signature (stream, date, next)
+  doneHandler: callback invoked after file for date settings.endDate has been fully downloaded and handled via it's callback handler
+*/
+downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
+
 function fileStreamHandler(fileStream, date, next){
   var writeStream = fs.createWriteStream(settings.dataDir + date + '.csv');
 
@@ -31,4 +39,3 @@ function doneHandler(){
   console.log('done');
 }
 
-downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
