@@ -1,36 +1,34 @@
 var fs = require('fs');
 var pg = require('pg');
+var copyFrom = require('pg-copy-streams').from;
 var downloader = require('./lib/downloader');
-var moment = require('moment');
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
   ext: '.export.CSV.zip',
-  dateRange: {
-    start: "2013 3 31", // format: "YYYY MM DD", min: "2013 4 1" -- inclusive
-    end: "2013 4 3" // format: "YYYY MM DD", max: moment() -- inclusive
-  },
+  startDate: "2013-03-31", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
+  endDate: "2013-04-3", // format: "YYYY-MM-DD", max: today -- inclusive
   dataDir: 'data/',
   user: 'jamesconkling',
   db: 'gdelt',
 };
 
-var pgClient = new pg.Client('postgres://' + settings.user + '@localhost/' + settings.db);
+function fileStreamHandler(fileStream, date, next){
+  var writeStream = fs.createWriteStream(settings.dataDir + date + '.csv');
 
-pgClient.connect((err) => {
-  if(err){ return console.error('Error opening connection to postgres', err); }
-  var startDate = moment(settings.dateRange.start, "YYYY MM DD");
-  var endDate = moment(settings.dateRange.end, "YYYY MM DD");
+  fileStream.pipe(writeStream)
+    .on('error', () => {
+      console.log('ERROR piping to data dir to', settings.dataDir + date);
+      next();
+    })
+    .on('finish', () => {
+      console.log('Finished writing', date);
+      next();
+    });
+}
 
-  var fileStream = function(readStream, date){
-    console.log('Finished downloading file', date.format('YYYYMMDD'));
-    readStream.pipe( fs.createWriteStream(settings.dataDir + date.format('YYYYMMDD') + '.csv') );
-  };
+function doneHandler(){
+  console.log('done');
+}
 
-  var done = function(){
-    console.log('Finished downloading all files for date range:', startDate.format('YYYYMMDD'), 'to', endDate.format('YYYYMMDD'));
-    return pgClient.end();
-  };
-
-  downloader(startDate, endDate, fileStream, done, settings);
-});
+downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
