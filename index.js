@@ -1,13 +1,15 @@
 var fs = require('fs');
 var pg = require('pg');
 var copyFrom = require('pg-copy-streams').from;
+var through = require('through2');
+var csv2 = require('csv2');
 var downloader = require('./lib/downloader');
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
   ext: '.export.CSV.zip',
   startDate: "2013-03-31", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
-  endDate: "2013-04-3", // format: "YYYY-MM-DD", max: today -- inclusive
+  endDate: "2013-04-1", // format: "YYYY-MM-DD", max: today -- inclusive
   dataDir: 'data/',
   user: 'jamesconkling',
   db: 'gdelt',
@@ -29,9 +31,15 @@ pgClient.connect((err) => {
   function fileStreamHandler(fileStream, date, next){
     console.log('Finished downloading file', date);
 
-    var pgStream = pgClient.query(copyFrom('COPY events FROM STDIN WITH CSV DELIMITER \t'));
+    var pgStream = pgClient.query(copyFrom("COPY events FROM STDIN WITH CSV DELIMITER E'\t'"));
 
-    fileStream.pipe(pgStream)
+    fileStream
+      // .pipe(csv2({ separator: '\t' }))
+      // .pipe(through.obj((line, enc, nextLine) => {
+      //   this.push(line);
+      //   nextLine();
+      // }))
+      .pipe(pgStream)
       .on('error', (err) => {
         console.log('error uploading file', date, 'error', err);
         next();

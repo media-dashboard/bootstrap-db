@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "csv2": "^0.1.1",
     "moment": "^2.10.6",
     "pg": "^4.4.1",
     "pg-copy-streams": "^0.3.0",
+    "through2": "^2.0.0",
     "unzip": "^0.1.11"
   }
 }
