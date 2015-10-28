@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS PostGIS;
 
 CREATE TABLE events (
-  GLOBALEVENTID bigint ,
+  GLOBALEVENTID bigint PRIMARY KEY,
   SQLDATE date ,
   MonthYear varchar(6) ,
   Year varchar(4) ,
