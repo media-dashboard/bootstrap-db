@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS PostGIS;
-
 -- below is the full schema for the GDELT dataset
 -- redundant columns have been removed to save space
 CREATE TABLE events (
