@@ -4,6 +4,7 @@ var copyFrom = require('pg-copy-streams').from;
 var through = require('through2');
 var csv2 = require('csv2');
 var downloader = require('./lib/downloader');
+var multisplice = require('./lib/util')
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
@@ -34,11 +35,16 @@ pgClient.connect((err) => {
     var pgStream = pgClient.query(copyFrom("COPY events FROM STDIN WITH CSV DELIMITER E'\t'"));
 
     fileStream
-      // .pipe(csv2({ separator: '\t' }))
-      // .pipe(through.obj((line, enc, nextLine) => {
-      //   this.push(line);
-      //   nextLine();
-      // }))
+      .pipe(csv2({ separator: '\t' }))
+      .pipe(through.obj(function(line, enc, nextLine){
+        // remove row cells from redundant columns
+        // see modified table schema in initDb.sql
+        line.splice(2,4); // MonthYear, Year, FractionDate, Actor1Code
+        line.splice(15,1); // Actor2Code
+        line.splice()
+        this.push(line.join('\t') + '\n');
+        nextLine();
+      }))
       .pipe(pgStream)
       .on('error', (err) => {
         console.log('error uploading file', date, 'error', err);

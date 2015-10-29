@@ -1,12 +1,14 @@
 CREATE EXTENSION IF NOT EXISTS PostGIS;
 
+-- below is the full schema for the GDELT dataset
+-- redundant columns have been removed to save space
 CREATE TABLE events (
   GLOBALEVENTID bigint PRIMARY KEY ,
   SQLDATE date ,
-  MonthYear text ,
-  Year text ,
-  FractionDate real ,
-  Actor1Code text , --char(3)
+  -- MonthYear text, -- redundant
+  -- Year text , -- redundant
+  -- FractionDate real , -- redundant
+  -- Actor1Code text , -- redundant: ActorCode is a concatenation of Name, CountryCode, GroupCode, etc. --char(3)
   Actor1Name text ,
   Actor1CountryCode text ,
   Actor1KnownGroupCode text ,
@@ -16,7 +18,7 @@ CREATE TABLE events (
   Actor1Type1Code text ,
   Actor1Type2Code text ,
   Actor1Type3Code text ,
-  Actor2Code text , --char(3)
+  -- Actor2Code text , --char(3)
   Actor2Name text ,
   Actor2CountryCode text ,
   Actor2KnownGroupCode text ,
@@ -28,8 +30,8 @@ CREATE TABLE events (
   Actor2Type3Code text ,
   IsRootEvent int ,
   EventCode text ,
-  EventBaseCode text ,
-  EventRootCode text ,
+  -- EventBaseCode text , -- redundant: these are shortened versions of EventBaseCode
+  -- EventRootCode text , -- redundant: these are shortened versions of EventBaseCode
   QuadClass int ,
   GoldsteinScale real ,
   NumMentions int ,
