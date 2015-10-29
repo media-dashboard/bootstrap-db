@@ -4,7 +4,7 @@ var copyFrom = require('pg-copy-streams').from;
 var through = require('through2');
 var csv2 = require('csv2');
 var downloader = require('./lib/downloader');
-var multisplice = require('./lib/util')
+var dropColumn = require('./lib/helpers').dropColumn
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
@@ -37,11 +37,9 @@ pgClient.connect((err) => {
     fileStream
       .pipe(csv2({ separator: '\t' }))
       .pipe(through.obj(function(line, enc, nextLine){
-        // remove row cells from redundant columns
-        // see modified table schema in initDb.sql
-        line.splice(2,4); // MonthYear, Year, FractionDate, Actor1Code
-        line.splice(15,1); // Actor2Code
-        line.splice()
+        // remove redundant columns to match schema in db/eventsTable.sql
+        dropColumn(line, ['MonthYear', 'Year', 'FractionDate', 'Actor1Code', 'Actor2Code', 'EventBaseCode', 'EventRootCode']);
+
         this.push(line.join('\t') + '\n');
         nextLine();
       }))
