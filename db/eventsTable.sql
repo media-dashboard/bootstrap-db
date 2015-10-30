@@ -6,30 +6,30 @@ CREATE TABLE events (
   -- MonthYear text, -- redundant
   -- Year text , -- redundant
   -- FractionDate real , -- redundant
-  -- Actor1Code text , -- redundant: ActorCode is a concatenation of Name, CountryCode, GroupCode, etc. --char(3)
+  Actor1Code text , -- redundant?: ActorCode is a concatenation of Name, CountryCode, GroupCode, etc. --char(3)
   Actor1Name text ,
-  Actor1CountryCode text ,
-  Actor1KnownGroupCode text ,
-  Actor1EthnicCode text ,
-  Actor1Religion1Code text ,
-  Actor1Religion2Code text ,
-  Actor1Type1Code text ,
-  Actor1Type2Code text ,
-  Actor1Type3Code text ,
-  -- Actor2Code text , --char(3)
+  Actor1CountryCode text REFERENCES countrycode ,
+  Actor1KnownGroupCode text REFERENCES groupcode ,
+  Actor1EthnicCode text REFERENCES ethniccode ,
+  Actor1Religion1Code text REFERENCES religioncode ,
+  Actor1Religion2Code text REFERENCES religioncode ,
+  Actor1Type1Code text REFERENCES typecode ,
+  Actor1Type2Code text REFERENCES typecode ,
+  Actor1Type3Code text REFERENCES typecode ,
+  Actor2Code text , -- redundant?: ActorCode is a concatenation of Name, CountryCode, GroupCode, etc. --char(3)
   Actor2Name text ,
-  Actor2CountryCode text ,
-  Actor2KnownGroupCode text ,
-  Actor2EthnicCode text ,
-  Actor2Religion1Code text ,
-  Actor2Religion2Code text ,
-  Actor2Type1Code text ,
-  Actor2Type2Code text ,
-  Actor2Type3Code text ,
+  Actor2CountryCode text REFERENCES countrycode ,
+  Actor2KnownGroupCode text REFERENCES groupcode ,
+  Actor2EthnicCode text REFERENCES ethniccode ,
+  Actor2Religion1Code text REFERENCES religioncode ,
+  Actor2Religion2Code text REFERENCES religioncode ,
+  Actor2Type1Code text REFERENCES typecode ,
+  Actor2Type2Code text REFERENCES typecode ,
+  Actor2Type3Code text REFERENCES typecode ,
   IsRootEvent int ,
-  EventCode text ,
-  -- EventBaseCode text , -- redundant: these are shortened versions of EventBaseCode
-  -- EventRootCode text , -- redundant: these are shortened versions of EventBaseCode
+  EventCode text REFERENCES eventcode ,
+  EventBaseCode text REFERENCES eventcode , -- redundant?: these are shortened versions of EventBaseCode
+  EventRootCode text REFERENCES eventcode , -- redundant?: these are shortened versions of EventBaseCode
   QuadClass int ,
   GoldsteinScale real ,
   NumMentions int ,

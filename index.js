@@ -9,8 +9,8 @@ var dropColumn = require('./lib/helpers').dropColumn
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
   ext: '.export.CSV.zip',
-  startDate: "2013-03-31", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
-  endDate: "2013-04-1", // format: "YYYY-MM-DD", max: today -- inclusive
+  startDate: "2013-4-1", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
+  endDate: "2013-5-1", // format: "YYYY-MM-DD", max: today -- inclusive
   dataDir: 'data/',
   user: 'jamesconkling',
   db: 'gdelt',
@@ -38,7 +38,7 @@ pgClient.connect((err) => {
       .pipe(csv2({ separator: '\t' }))
       .pipe(through.obj(function(line, enc, nextLine){
         // remove redundant columns to match schema in db/eventsTable.sql
-        dropColumn(line, ['MonthYear', 'Year', 'FractionDate', 'Actor1Code', 'Actor2Code', 'EventBaseCode', 'EventRootCode']);
+        dropColumn(line, ['MonthYear', 'Year', 'FractionDate']);
 
         this.push(line.join('\t') + '\n');
         nextLine();
