@@ -192,6 +192,8 @@ INSERT INTO eventcode VALUES
     ( '121', 'Reject material cooperation' ),
       ( '1211', 'Reject economic cooperation' ),
       ( '1212', 'Reject military cooperation' ),
+      ( '1213', 'Reject judicial cooperation' ),
+      ( '1214', 'Reject intelligence cooperation' ),
     ( '122', 'Reject request or demand for material aid' ),
       ( '1221', 'Reject request for economic aid' ),
       ( '1222', 'Reject request for military aid' ),
