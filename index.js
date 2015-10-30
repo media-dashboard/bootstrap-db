@@ -10,7 +10,7 @@ var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
   ext: '.export.CSV.zip',
   startDate: "2013-4-1", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
-  endDate: "2013-5-1", // format: "YYYY-MM-DD", max: today -- inclusive
+  endDate: "2013-4-8", // format: "YYYY-MM-DD", max: today -- inclusive
   dataDir: 'data/',
   user: 'jamesconkling',
   db: 'gdelt',
@@ -46,7 +46,6 @@ pgClient.connect((err) => {
       .pipe(pgStream)
       .on('error', (err) => {
         console.log('error uploading file', date, 'error', err);
-        next();
       })
       .on('finish', () => {
         console.log('finish uploading file', date);
