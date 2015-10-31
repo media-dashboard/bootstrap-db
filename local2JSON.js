@@ -2,7 +2,7 @@ var fs = require('fs');
 var through = require('through2');
 var csv2 = require('csv2');
 var get = require('./lib/get').localData; // get module exposes get.remoteData and get.localData
-var dropColumn = require('./lib/helpers').dropColumn
+var dropColumns = require('./lib/helpers').dropColumns
 var col2Idx = require('./lib/helpers').gdeltCol2Idx
 
 var settings = {

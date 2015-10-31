@@ -3,7 +3,7 @@ var copyFrom = require('pg-copy-streams').from;
 var through = require('through2');
 var csv2 = require('csv2');
 var get = require('./lib/get').remoteData; // get module exposes get.remoteData and get.localData
-var dropColumn = require('./lib/helpers').dropColumn
+var dropColumns = require('./lib/helpers').dropColumns
 
 var settings = {
   baseurl: 'http://data.gdeltproject.org/events/',
@@ -37,7 +37,7 @@ pgClient.connect((err) => {
       .pipe(csv2({ separator: '\t' }))
       .pipe(through.obj(function(line, enc, nextLine){
         // remove redundant columns to match schema in db/eventsTable.sql
-        dropColumn(line, ['MonthYear', 'Year', 'FractionDate']);
+        dropColumns(line, ['MonthYear', 'Year', 'FractionDate']);
 
         this.push(line.join('\t') + '\n');
         nextLine();
