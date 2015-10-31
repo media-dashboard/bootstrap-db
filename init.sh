@@ -5,7 +5,7 @@ echo "DROP DATABASE IF EXISTS gdelt" | psql
 echo "CREATE DATABASE gdelt" | psql
 echo "CREATE EXTENSION IF NOT EXISTS PostGIS" | psql -d gdelt
 
-# create tables
+# create CAMEO tables
 echo "create countryCode table"
 psql -d gdelt -f db/countryCodeTable.sql
 echo "create ethnicCode table"
@@ -18,6 +18,8 @@ echo "create eventCode table"
 psql -d gdelt -f db/eventCodeTable.sql
 echo "create typeCode table"
 psql -d gdelt -f db/typeCodeTable.sql
+
+# create events table
 echo "create events table"
 psql -d gdelt -f db/eventsTable.sql
 

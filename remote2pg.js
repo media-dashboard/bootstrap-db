@@ -3,7 +3,7 @@ var pg = require('pg');
 var copyFrom = require('pg-copy-streams').from;
 var through = require('through2');
 var csv2 = require('csv2');
-var downloader = require('./lib/downloader');
+var get = require('./lib/get').remoteData; // get module exposes get.remoteData and get.localData
 var dropColumn = require('./lib/helpers').dropColumn
 
 var settings = {
@@ -16,7 +16,7 @@ var settings = {
   db: 'gdelt',
 };
 
-/* downloader function signature
+/* get function signature
   date: date from which to start downloading files
   fileStreamHandler: callback invoked after each file has been downloaded and unzipped
     given the function signature (stream, date, next)
@@ -27,7 +27,7 @@ var pgClient = new pg.Client('postgres://' + settings.user + '@localhost/' + set
 pgClient.connect((err) => {
   if(err){ return console.error('Error opening connection to postgres', err); }
 
-  downloader(settings.startDate, fileStreamHandler, doneHandler, settings);
+  get(settings.startDate, fileStreamHandler, doneHandler, settings);
 
   function fileStreamHandler(fileStream, date, next){
     console.log('Finished downloading file', date);
