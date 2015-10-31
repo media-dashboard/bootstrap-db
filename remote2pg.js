@@ -1,4 +1,3 @@
-var fs = require('fs');
 var pg = require('pg');
 var copyFrom = require('pg-copy-streams').from;
 var through = require('through2');
@@ -11,7 +10,7 @@ var settings = {
   ext: '.export.CSV.zip',
   startDate: "2013-4-1", // format: "YYYY-MM-DD", min: "2013-04-01" -- inclusive
   endDate: "2013-4-8", // format: "YYYY-MM-DD", max: today -- inclusive
-  dataDir: 'data/',
+  // dataDir: 'data/',
   user: 'jamesconkling',
   db: 'gdelt',
 };
@@ -44,11 +43,9 @@ pgClient.connect((err) => {
         nextLine();
       }))
       .pipe(pgStream)
-      .on('error', (err) => {
-        console.log('error uploading file', date, 'error', err);
-      })
+      .on('error', (err) => console.log('Error uploading file', date, 'error', err) )
       .on('finish', () => {
-        console.log('finish uploading file', date);
+        console.log('Finish uploading file', date);
         next();
       });
 
