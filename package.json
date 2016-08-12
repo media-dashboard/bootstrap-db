@@ -1,6 +1,6 @@
 {
   "name": "gdelt_dashboard",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "gdelt_downloader.js",
   "scripts": {
