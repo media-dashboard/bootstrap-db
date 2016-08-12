@@ -54,10 +54,23 @@ CREATE TABLE events (
   ActionGeo_FullName text ,
   ActionGeo_CountryCode text ,
   ActionGeo_ADM1Code text ,
-  ActionGeo_Lat float ,
-  ActionGeo_Long float ,
+  -- ActionGeo_Lat float , -- compute as postgres geom data type
+  -- ActionGeo_Long float , -- compute as postgres geom data type
+  ActionGeo geom , -- computed from above Lat/Long pair
   ActionGeo_FeatureID text , --int
   DATEADDED int ,
   SOURCEURL text
 );
+
+-- TODO: find out if/how/when indexes need to be updated
+CREATE INDEX SQLDATE_idx ON events (SQLDATE);
+
+-- create GIN indexes on JSON columns
+CREATE INDEX EventCode_idx ON events USING GIN (EventCode);
+CREATE INDEX Actor1Code_idx ON events USING GIN (Actor1Code);
+CREATE INDEX Actor2Code_idx ON events USING GIN (Actor2Code);
+
+-- create GiST indexes on geo columns
+CREATE INDEX Geo_idx ON events USING GiST (ActionGeo);
+
 
