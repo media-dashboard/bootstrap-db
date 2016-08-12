@@ -1,19 +1,18 @@
 {
-  "name": "gdelt_dashboard",
-  "version": "1.0.0",
-  "description": "",
-  "main": "gdelt_downloader.js",
+  "name": "bootstrap-db",
+  "version": "0.0.1",
+  "description": "initialize media-dashboard database and populate, all from the comfort of your living room",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "jameslaneconkling",
   "license": "ISC",
   "dependencies": {
     "csv2": "^0.1.1",
     "moment": "^2.10.6",
     "pg": "^4.4.1",
     "pg-copy-streams": "^0.3.0",
-    "through2": "^2.0.0",
     "unzip": "^0.1.11"
   },
   "devDependencies": {
